@@ -1,0 +1,36 @@
+# generated using pymatgen
+data_MRG
+_symmetry_space_group_name_H-M   'P 1'
+_cell_length_a   4.1697
+_cell_length_b   4.1697
+_cell_length_c   5.8783
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   VFeAl
+_chemical_formula_sum   'V2 Fe Al'
+_cell_volume   102.202464
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+Al_2a  Al  1  0.50  0.50  0.00  1
+Al_2a  Al  1  0.00  0.00  0.50  1
+V_2b   V   1  0.00  0.00  0.00  1
+V_2b   V   1  0.50  0.50  0.50  1
+Fe_2c  Fe  1  0.50  0.00  0.25  1
+Fe_2c  Fe  1  0.00  0.50  0.75  1
+V_2d   V   1  0.50  0.00  0.75  1
+V_2d   V   1  0.00  0.50  0.25  1
+# Sites denoted here are the site names for the cubic representation.
+# So 2b is in the corners, whereas 4a would be on the corners for the full cubic.
