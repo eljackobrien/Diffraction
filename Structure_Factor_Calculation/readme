@@ -1,0 +1,8 @@
+A project I made to calculate the crystal diffraction structure factors for a material.
+
+The first script calculates the structure factors, using literature values for the interpolated (Xray) or constant (neutron)
+form factors, given the atoms and their positions in the unit cell.
+
+A second script which introduces a material class that can obtain the crystal structure information from a .cif file in
+conventional standard format (see materialsproject.org for example), and then call the first script to calculate the
+structure factors, corrected intensities and the angular positions of the diffracted peaks.
