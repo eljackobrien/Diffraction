@@ -120,6 +120,7 @@ class Voigt_class:
 
 
 if __name__ in "__main__":
+    # Test to make sure the FWHMs and areas are correct
     def FWHM(x, y):
         temp = abs(y - y.max()/2)
         HM_left, HM_right = temp[:y.argmax()].argmin(), temp[y.argmax():].argmin()+y.argmax()
@@ -179,28 +180,9 @@ if __name__ in "__main__":
     ax.legend()
     plt.show()
 
+# Lorentzian is the fastest to compute by a significant margin, then Gaussian, PV and
+# finally Voigt is by far the slowest due to te convolution
 
-
-#%% Timeit tests
-if __name__ in "__main__" and run_timing_tests:
-    from timeit import timeit
-    num = 10000
-    sG = """y=Gaussian(xt, x0, 1.53, 100)""" # 187.9ms -> #2
-    Gaussian_time = timeit(stmt=sG, setup="from __main__ import Gaussian, xt, x0", number=num)
-
-    sL = """y=Lorentzian(xt, x0, 1.8, 100)""" # 67.9ms -> #1
-    Lorentz_time = timeit(stmt=sL, setup="from __main__ import Lorentzian, xt, x0", number=num)
-
-    spV = """y=pseudo_Voigt(xt, x0, 1, 1, 100)""" # 336.9ms -> #3
-    pseudo_voigt_time = timeit(stmt=spV, setup="from __main__ import pseudo_Voigt, xt, x0", number=num)
-
-    sVs = """y=Voigt_scipy(xt, x0, 1, 1, 100)""" # 1505.8ms -> #4
-    sp_voigt_time = timeit(stmt=sVs, setup="from __main__ import Voigt_scipy, xt, x0", number=num)
-
-    names = ['Gaussian', 'Lorentzian', 'pseudo-Voigt', 'Scipy Voigt']
-    times = [Gaussian_time, Lorentz_time, pseudo_voigt_time, sp_voigt_time]
-    print(f"For {num} calculations of profiles with {len(xt)} points each:\n")
-    for name,time in zip(names,times): print(f"{name} took: {1000*time:.1f}ms\n")
 
 
 #%% 2-Dimensional Peak Functions
@@ -232,8 +214,9 @@ def pseudo_Voigt_2D(x, y, x0, y0, gx, gy, lx, ly, area=1):
     Fx = F(gx, lx);  Fy = F(gy, ly);  nx = n(lx, Fx);  ny = n(ly, Fy)
     # I'm not sure there's any way to seperate the mixing ratio into x and y
     # The mathlab version used just 3 params, FWHMx, FWHMy and n. IP and OOP shared same n.
-    n = 0.5*(nx + ny)  # This is incorrect and will correlate IP vs OOP
-    # properties. i.e. there cannot be zero gaussian character IP and finite OOP
+    n = 0.5*(nx + ny)
+    # This definition of 'n' is incorrect and will correlate IP vs OOP properties:
+    #     i.e. there cannot be zero gaussian character IP and finite OOP using this
     return (1 - n)*Gaussian_2D(x, y, x0, y0, Fx, Fy, area) + n*Lorentzian_2D(x, y, x0, y0, Fx, Fy, area)
 
 def Voigt_convolve_2D(x, y, x0, y0, gx, gy, lx, ly, area=1):
@@ -254,27 +237,8 @@ if __name__ in "__main__":
     ax.legend()
     plt.show()
 
+# Timing is similar, but Voigt is slower by an even larger margin since we are looking at O(N^2)
 
-#%% Timeit tests 2D
-if __name__ in "__main__" and run_timing_tests:
-    from timeit import timeit
-    num = 25
-    sG = """y=Gaussian_2D(xt, yt, x0, y0, 1.0, 1.0, 25)""" # 260.1ms -> #2
-    Gaussian_time = timeit(stmt=sG, setup="from __main__ import Gaussian_2D, xt, yt, x0, y0", number=num)
-
-    sL = """y=Lorentzian_2D(xt, yt, x0, y0, 1.0, 1.0, 25)""" # 94.5ms -> #1
-    Lorentz_time = timeit(stmt=sL, setup="from __main__ import Lorentzian_2D, xt, yt, x0, y0", number=num)
-
-    spV = """y=pseudo_Voigt_2D(xt, yt, x0, y0, 1.0, 1.0, 1.0, 1.0, 25)""" # 505.7ms -> #3
-    pseudo_voigt_time = timeit(stmt=spV, setup="from __main__ import pseudo_Voigt_2D, xt, yt, x0, y0", number=num)
-
-    sVs = """y=Voigt_convolve_2D(xt, yt, x0, y0, 1.0, 1.0, 1.0, 1.0, 25)""" # 5477.1ms -> #4
-    voigt_convolve_time = timeit(stmt=sVs, setup="from __main__ import Voigt_convolve_2D, xt, yt, x0, y0", number=num)
-
-    names = ['Gaussian', 'Lorentzian', 'pseudo-Voigt', 'Scipy FFT Convolve']
-    times = [Gaussian_time, Lorentz_time, pseudo_voigt_time, voigt_convolve_time]
-    print(f"For {num} calculations of peak profiles of size [{len(xt)} x {len(yt)}]:\n")
-    for name,time in zip(names,times): print(f"{name} took: {1000*time:.1f}ms\n")
 
 
 #%% Generalised 2D Peak Funtions
@@ -448,25 +412,3 @@ if "__main__" in __name__:
     plt.show()
 
 
-#%% Timing tests for generalised 2D profiles
-if __name__ in "__main__" and run_timing_tests:
-    num = 25
-    G_2D = """y=Gaussian_2D_general(xt, yt, 45, 4.0, 5.0, 2.5, 1.53, 100)""" # 300.6ms -> #3
-    time_G_2D = timeit(stmt=G_2D, setup="from __main__ import Gaussian_2D_general, xt, yt", number=num)
-
-    L_2D = """y=Lorentzian_2D_general(xt, yt, 45, 4.0, 5.0, 3.2, 1.80, 100)""" # 162.2ms -> #1
-    time_L_2D = timeit(stmt=L_2D, setup="from __main__ import Lorentzian_2D_general, xt, yt", number=num)
-
-    L_shift_2D = """y=Lorentzian_2D_shift_center_general(xt, yt, 45, 4.0, 5.0, 3.2, 1.80, 100)""" # 227.7ms -> #2
-    time_L_shift_2D = timeit(stmt=L_shift_2D, setup="from __main__ import Lorentzian_2D_shift_center_general, xt, yt", number=num)
-
-    pV_2D = """y=pseudo_Voigt_2D_general(xt, yt, 45, 4.0, 5.0, 2.1, 1.3, 1.2, 0.5, 100)""" # 588.2ms -> #4
-    time_pV_2D = timeit(stmt=pV_2D, setup="from __main__ import pseudo_Voigt_2D_general, xt, yt", number=num)
-
-    V_2D = """y=Voigt_2D_general(xt, yt, 45, 4.0, 5.0, 2.1, 1.3, 1.2, 0.5, 100)""" # 5312.2ms -> #5
-    time_V_2D = timeit(stmt=V_2D, setup="from __main__ import Voigt_2D_general, xt, yt", number=num)
-
-    names = ['Gaussian_2D', 'Lorentzian_2D', 'Lorentzian_shifted_2D', 'pseudo-Voigt_2D', 'Voigt_2D']
-    times = [time_G_2D, time_L_2D, time_L_shift_2D, time_pV_2D, time_V_2D]
-    print(f"\nFor {num} calculations of peak profiles of size [{len(xt)} x {len(yt)}]:")
-    for name,time in zip(names,times): print(f"{name} took: {1000*time:.1f}ms\n")
