@@ -17,9 +17,11 @@ Created on Fri May 19 14:35:55 2023
 # For now, I am keeping B constant ~ 1 and occupancy constant = 1, they can be added to the function easily.
 # =============================================================================
 import numpy as np
+from os import path
+path_prefix = path.dirname(path.abspath(__file__))
 
 # Load and functionalise atomic form factors - Xrays
-gauss_approx_coefs = np.genfromtxt("./form_factors/Xray_atomic_form_factors_gaussian_approx.txt", dtype=str)
+gauss_approx_coefs = np.genfromtxt( path.join(path_prefix, 'form_factors/Xray_form_factors.txt') , dtype=str)
 gauss_elements, gauss_coefs = gauss_approx_coefs[:,0], gauss_approx_coefs[:,1:].astype(float)
 
 # Equation valid for square lattice, all angles = 90
@@ -30,6 +32,7 @@ def get_Q_len(a,b,c, h,k,l):
 def get_atomic_form_factor_low_Q(element, Q_len, temp=None):
     if np.mean(Q_len) > 1.5: print(temp, "Q_len is very large, are you sure you are using A and not nm?")
     Q_len = Q_len*10  # convert from A to nm, table in file is in nm but I use A
+    if element not in gauss_elements: raise Exception(f"{element} is not in element list")
     a1,b1,a2,b2,a3,b3,a4,b4,c = gauss_coefs[(gauss_elements == element).argmax()]
     a, b = [a1,a2,a3,a4], [b1,b2,b3,b4]
     f = 0
@@ -52,7 +55,7 @@ def get_F2_Xrays(a,b,c, h,k,l, atoms, positions):
 
 
 # Load neutron isotopic form factors
-neutron_fns = np.genfromtxt("./form_factors/neutron_nuclear_atomic_form_factors.txt", dtype=str)
+neutron_fns = np.genfromtxt( path.join(path_prefix, 'form_factors/Neutron_form_factors.txt') , dtype=str)
 isotope, occurence, b_coh, b_incoh, sig_coh, sig_incoh, sig_scatt, sig_absrb = neutron_fns.T
 b_coh = b_coh.astype(complex)
 
