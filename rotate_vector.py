@@ -11,7 +11,7 @@ rad = np.pi/180
 test = 0
 
 
-def rotate2(vec, axis, theta):
+def rotate(vec, axis, theta):
     """
     Rotate vec around axis by theta radians.
 
@@ -52,11 +52,11 @@ def rotate2(vec, axis, theta):
 
 
 if (__name__ == '__main__') and test:
-    print(rotate2([1,0,0], [0,0,1], 45*rad))
-    print(rotate2([1,0,0], [0,0,1], np.linspace(0,180,10)*rad))
-    print(rotate2([[1,0,0],[0.7071,0.7071,0]], [0,0,1], 45*rad))
-    print(rotate2([[1,0,0],[0.7071,0.7071,0]], [0,0,1], [20*rad,40*rad]))
-    print(rotate2([1,1,0], [0,1,0], 45*rad))
+    print(rotate([1,0,0], [0,0,1], 45*rad))
+    print(rotate([1,0,0], [0,0,1], np.linspace(0,180,10)*rad))
+    print(rotate([[1,0,0],[0.7071,0.7071,0]], [0,0,1], 45*rad))
+    print(rotate([[1,0,0],[0.7071,0.7071,0]], [0,0,1], [20*rad,40*rad]))
+    print(rotate([1,1,0], [0,1,0], 45*rad))
 
 
 
