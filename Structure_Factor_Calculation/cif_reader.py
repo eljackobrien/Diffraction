@@ -31,10 +31,15 @@ import numpy as np
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
 plt.rc('font',  family='serif')
-from mpl_stem_plot import plt_stem
+run_tests = 1
+try: from mpl_stem_plot import plt_stem
+except: run_tests = 0
+
 import os
 from manual_F2_calculator import get_F2
 
+try: from print_clr import print_clr as prnt
+except: raise Exception("print_clr module/function not found, get the module or remove the 'prnt()' call")
 
 #%% Some initial functions and variables
 hkls_list = []
@@ -125,6 +130,7 @@ class Material:
             if space_group != 1: raise Exception("Please use a 'conventional standard' .cif with P1 (no) symmetry\nCan be obtained from e.g. https://materialsproject.org/materials")
 
             # Get the lattice parameters from the cif file
+            self.name = text.split("data_")[-1].split("\n")[0]
             self.a = float(text.split("_cell_length_a")[-1].split("\n")[0])
             self.b = float(text.split("_cell_length_b")[-1].split("\n")[0])
             self.c = float(text.split("_cell_length_c")[-1].split("\n")[0])
@@ -154,6 +160,8 @@ class Material:
             label_first = ( len(text.split('_site_label')[-1]) > len(text.split('_site_type_symbol')[-1]) )
 
             self.elements = atoms_ar[:,1] if label_first else atoms_ar[:,0]
+            if sum(['_' in ele for ele in self.elements]):
+                raise Exception("Underscore in element list: .cif file is likely wrong")
             self.hkls = hkls_arr
             self.calc_diffrac_vars()
 
@@ -173,6 +181,7 @@ class Material:
         F2s = 100*F2s/F2s.max()
         # Ignore forbidden reflections
         inds2 = (F2s > self.F2_cutoff)
+        self.hkls = self.hkls[inds2]
         self.d_spacings = d[inds2]
         self.tts = tt[inds2]
         self.taus = tau[inds2]
@@ -180,16 +189,18 @@ class Material:
         self.F2s = F2s[inds2]
         # Apply corrections to get intensity from structure factors
         self.Is = F2s[inds2] * LP_corr(self.tts)
-        if volume_corr: self.Is = self.Is / np.sin(self.omegas)
-        self.Is = 100*self.Is/self.Is.max()
+        if volume_corr:
+            self.Is = self.Is / np.sin(self.omegas)
+            prnt("Only reflections with positive omega are accesible in geometries where volume correction is relevant.", fore_clr=(150,200,250))
+        self.Is = np.around( 100*self.Is/self.Is.max(), 8 )
         # Names of peaks (Latex format) for labelling in matplotlib
-        self.peak_names = np.array(['$('+''.join(np.array(pk).astype(str))+')$' for pk in self.hkls[inds2]])
+        self.peak_names = np.array(['$('+''.join(np.array(pk).astype(str))+')$' for pk in self.hkls])
 
 
 
 #%% Test functionality ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-if "__main__" in __name__:
+if "__main__" in __name__ and run_tests:
     samp_path = 'vesta_cif_reader_compare/Mn2RuGa_F-43m_conventional.cif'
     sub_path = 'vesta_cif_reader_compare/MgO_Fm-3m_conventional_standard.cif'
     sample, substrate = 'MRG', 'MgO'
